@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "16.15.1",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.9.1"
+    },
+    "version": "1.17.4",
+    "libraryName": "devops-starter",
+    "libraryId": "6320e387-38c1-49b5-a7c1-a833b4860827",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "devops-starter",
+    "solutionShortDescription": "devops-starter description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
