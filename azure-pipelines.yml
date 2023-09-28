@@ -23,15 +23,13 @@ jobs:
     steps:
       - checkout: self
       - task: NodeTool@0
-        displayName: Install Node 14.15.0
+        displayName: 'Use Node 16.x'
         inputs:
-          versionSpec: '14.15.0'
+          versionSpec: '16.x'
       - task: Npm@1
         displayName: Install npm
         inputs:
-          command: 'install'
           workingDir: '.'
-          verbose: true
       - task: gulp@0
         displayName: SPFx - Bundle Solution
         inputs:
