@@ -42,4 +42,16 @@ jobs:
           gulpFile: ./gulpfile.js
           targets: 'package-solution'
           arguments: '--ship'
+      - task: CopyFiles@2
+        displayName: Copy sppkg-file to artifact staging directory 
+        inputs:
+          SourceFolder: '.'
+          Contents: '$(SolutionPackageLocation)/$(PackageName)'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/drop'
+          flattenFolders: true
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish staged artifacts'
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)/drop'
+
 
