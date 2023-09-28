@@ -11,17 +11,41 @@ trigger:
     exclude:
       - "**.yml"
 
-pool:
-  vmImage: ubuntu-latest
+name: $(Date:yyyyMMdd)$(Rev:.r)_
+variables:
+- group: SharePoint Deployment
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-- task: NodeTaskRunnerInstaller@0
-  inputs:
-    nodeVersion: '6'
+jobs:
+  - job: Job_1
+    displayName: SPFx Package Building Agent
+    pool:
+      vmImage: ubuntu-20.04
+    steps:
+      - checkout: self
+      - task: NodeTool@0
+        displayName: Install Node 14.15.0
+        inputs:
+          versionSpec: '14.15.0'
+      - task: Npm@1
+        displayName: npm install
+        inputs:
+          command: 'install'
+          workingDir: 'devops-starter'
+          verbose: false
+      - task: gulp@0
+        displayName: SPFx - Bundle Solution
+        inputs:
+          gulpFile: '$(ProjectFolder)/gulpfile.js'
+          targets: 'bundle'
+          arguments: '--ship'
+          workingDirectory: '$(ProjectFolder)'
+          gulpjs: 'node_modules/gulp/bin/gulp.js'
+          enableCodeCoverage: false
+      - task: gulp@0
+        displayName: SPFx - Ship the solution
+        inputs:
+          gulpFile: '$(ProjectFolder)/gulpfile.js'
+          targets: 'package-solution'
+          arguments: '--ship'
+          gulpjs: 'node_modules/gulp/bin/gulp.js'
+          enableCodeCoverage: false
