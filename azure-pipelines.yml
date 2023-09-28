@@ -30,7 +30,7 @@ jobs:
         displayName: npm install
         inputs:
           command: 'install'
-          workingDir: 'devops-starter'
+          workingDir: $(System.DefaultWorkingDirectory)/devops-starter
           verbose: false
       - task: gulp@0
         displayName: SPFx - Bundle Solution
