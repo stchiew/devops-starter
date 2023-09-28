@@ -27,10 +27,11 @@ jobs:
         inputs:
           versionSpec: '14.15.0'
       - task: Npm@1
-        displayName: npm install
+        displayName: Install npm
         inputs:
           command: 'install'
-          verbose: false
+          workingDir: '$(ProjectFolder)'
+          verbose: true
       - task: gulp@0
         displayName: SPFx - Bundle Solution
         inputs:
