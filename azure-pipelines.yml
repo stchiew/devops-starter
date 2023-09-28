@@ -30,20 +30,18 @@ jobs:
         displayName: Install npm
         inputs:
           command: 'install'
-          workingDir: '$(ProjectFolder)'
+          workingDir: '.'
           verbose: true
       - task: gulp@0
         displayName: SPFx - Bundle Solution
         inputs:
-          gulpFile: '$(ProjectFolder)/gulpfile.js'
+          gulpFile: ./gulpfile.js
           targets: 'bundle'
           arguments: '--ship'
-          cwd: '$(ProjectFolder)'
       - task: gulp@0
         displayName: SPFx - Ship the solution
         inputs:
-          gulpFile: '$(ProjectFolder)/gulpfile.js'
+          gulpFile: ./gulpfile.js
           targets: 'package-solution'
           arguments: '--ship'
-          cwd: $(ProjectFolder)
 
