@@ -37,14 +37,12 @@ jobs:
           gulpFile: '$(ProjectFolder)/gulpfile.js'
           targets: 'bundle'
           arguments: '--ship'
-          workingDirectory: '$(ProjectFolder)'
-          gulpjs: 'node_modules/gulp/bin/gulp.js'
-          enableCodeCoverage: false
+          cwd: '$(ProjectFolder)'
       - task: gulp@0
         displayName: SPFx - Ship the solution
         inputs:
           gulpFile: '$(ProjectFolder)/gulpfile.js'
           targets: 'package-solution'
           arguments: '--ship'
-          gulpjs: 'node_modules/gulp/bin/gulp.js'
-          enableCodeCoverage: false
+          cwd: $(ProjectFolder)
+
