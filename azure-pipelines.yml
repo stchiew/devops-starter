@@ -56,6 +56,12 @@ stages:
             displayName: Publish artifact
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          - task: CmdLine@2
+            displayName: Cmd line display folder structure
+            inputs:
+              script: |
+                cd $(System.DefaultWorkingDirectory)
+                ls -Rla
   - stage: Deploy
     dependsOn: 
       - Build
