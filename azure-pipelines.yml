@@ -56,3 +56,23 @@ stages:
             displayName: Publish artifact
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+  - stage: Deploy
+    dependsOn: 
+      - Build
+    jobs:
+      - job: deploy_job
+        displayName: Deploy package
+        pool:
+          vmImage: ubuntu-20.04
+        steps:
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '16.x'
+        - script: sudo npm install --global @pnp/cli-microsoft365
+          displayName: Install CLI for Microsoft 365
+        - task: DownloadSecureFile@1
+          inputs:
+            secureFile: 'DevOpsStarter.pfx'
+        - script: m365 login --authType certificate --certificateFile "./DevOpsStarter.pfx" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
+          displayName:  'SPO Login'
+        
