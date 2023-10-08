@@ -71,8 +71,10 @@ stages:
         - script: sudo npm install --global @pnp/cli-microsoft365
           displayName: Install CLI for Microsoft 365
         - task: DownloadSecureFile@1
+          displayName: Download secure file
+          name: caCert
           inputs:
             secureFile: 'DevOpsStarter.pfx'
-        - script: m365 login --authType certificate --certificateFile "./DevOpsStarter.pfx" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
+        - script: m365 login --authType certificate --certificateFile "$(caCert.secureFilePath)" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
           displayName:  'SPO Login'
         
