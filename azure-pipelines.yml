@@ -13,7 +13,7 @@ trigger:
 
 name: $(Date:yyyyMMdd)$(Rev:.r)_
 variables:
-- group: SharePoint Deployment
+- group: Global Deployment
 
 stages:
   - stage: Build
