@@ -13,7 +13,8 @@ trigger:
 
 name: $(Date:yyyyMMdd)$(Rev:.r)_
 variables:
-- group: Global Deployment
+  - group: Global Deployment
+  - group: SharePoint Deployment 
 
 stages:
   - stage: Build
@@ -45,23 +46,11 @@ stages:
               gulpFile: './gulpfile.js'
               targets: 'package-solution'
               arguments: '--ship'
-          - task: CopyFiles@2
-            displayName: 'Copy package to $(Build.ArtifactStagingDirectory)'
+          - task: PublishPipelineArtifact@1
             inputs:
-              SourceFolder: '.'
-              Contents: 'sharepoint/**/*.sppkg'
-              TargetFolder: '$(Build.ArtifactStagingDirectory)'
-              OverWrite: true
-          - task: PublishBuildArtifacts@1
-            displayName: Publish artifact
-            inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-          - task: CmdLine@2
-            displayName: Cmd line display folder structure
-            inputs:
-              script: |
-                cd $(System.DefaultWorkingDirectory)
-                ls -Rla
+              targetPath: '$(Pipeline.Workspace)/sharepoint/solution/$(PackageName)'
+              artifact: drop
+              publishLocation: 'pipeline'
   - stage: Deploy
     dependsOn: 
       - Build
@@ -83,4 +72,13 @@ stages:
             secureFile: 'DevOpsStarter.pfx'
         - script: m365 login --authType certificate --certificateFile "$(caCert.secureFilePath)" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
           displayName:  'SPO Login'
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            buildType: 'current'
+            artifactName: 'drop'
+        - script: m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
+          displayName: Upload SharePoint package to Site Collection App Catalog
+        - script: m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
+          displayName: Deploy SharePoint package
+
         
