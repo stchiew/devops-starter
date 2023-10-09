@@ -48,7 +48,7 @@ stages:
               arguments: '--ship'
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: '$(Pipeline.Workspace)/sharepoint/solution/$(PackageName)'
+              targetPath: '$(System.DefaultWorkingDirectory)/sharepoint/solution/$(PackageName)'
               artifact: drop
               publishLocation: 'pipeline'
   - stage: Deploy
