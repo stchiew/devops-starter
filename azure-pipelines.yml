@@ -49,7 +49,7 @@ stages:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(System.DefaultWorkingDirectory)/sharepoint/solution/$(PackageName)'
-              artifact: drop
+              artifact: Package
               publishLocation: 'pipeline'
   - stage: Deploy
     dependsOn: 
@@ -73,10 +73,12 @@ stages:
         - script: m365 login --authType certificate --certificateFile "$(caCert.secureFilePath)" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
           displayName:  'SPO Login'
         - task: DownloadPipelineArtifact@2
+          displayName: Download artifact to $((Pipeline.Workspace)        
           inputs:
             buildType: 'current'
-            artifactName: 'drop'
-        - script: m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
+            artifactName: Package
+        - script: ls $(Pipeline.Workspace)
+        - script: m365 spo app add --filePath "$(Pipeline.Workspace)/Package/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
           displayName: Upload SharePoint package to Site Collection App Catalog
         - script: m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
           displayName: Deploy SharePoint package
