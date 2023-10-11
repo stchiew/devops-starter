@@ -78,7 +78,7 @@ stages:
             buildType: 'current'
             artifactName: Package
         - script: ls $(Pipeline.Workspace)
-        - script: m365 spo app add --filePath "$(Pipeline.Workspace)/Package/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
+        - script: m365 spo app add --filePath "$(Pipeline.Workspace)/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
           displayName: Upload SharePoint package to Site Collection App Catalog
         - script: m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
           displayName: Deploy SharePoint package
