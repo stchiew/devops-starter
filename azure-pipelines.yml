@@ -8,6 +8,12 @@ trigger:
   paths:
     exclude:
       - "**.yml"
+
+pr:
+  branches:
+    exclude:
+      - "*"
+
 pool:
   vmImage: ubuntu-20.04
 
@@ -101,7 +107,8 @@ stages:
                   displayName: "Login to SPO"
 
                 # Execute a CLI script to deploy the app to SharePoint
-                - script:
-                    m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
-                    m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
+                - script: m365 spo app add --filePath "$(Pipeline.Workspace)/drop/sharepoint/solution/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
+                  displayName: "Add package to SPO"
+
+                - script: m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
                   displayName: "Deploy SharePoint package"
