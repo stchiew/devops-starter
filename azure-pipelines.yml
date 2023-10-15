@@ -1,25 +1,83 @@
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
-- main
+  branches:
+    include:
+      - main
   paths:
     exclude:
-    - **.yml
-
+      - "**.yml"
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-20.04
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+name: $(Date:yyyyMMdd)$(Rev:.r)_
+variables:
+  - group: Global Deployment
+  - group: SharePoint Deployment
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-- task: NodeTaskRunnerInstaller@0
-  inputs:
-    nodeVersion: '6'
+stages:
+  - stage: Build
+    jobs:
+      - job: build_job
+        displayName: Build Job
+        steps:
+          - checkout: self
+          - task: NodeTool@0
+            displayName: "Use Node 16.x"
+            inputs:
+              versionSpec: "16.x"
+
+          - task: Npm@1
+            displayName: "Install npm packages"
+            inputs:
+              command: install
+
+          - task: gulp@0
+            displayName: Bundle solution
+            inputs:
+              gulpFile: "./gulpfile.js"
+              targets: "bundle"
+              arguments: "--ship"
+
+          - task: gulp@0
+            displayName: Package solution
+            inputs:
+              gulpFile: "./gulpfile.js"
+              targets: "package-solution"
+              arguments: "--ship"
+
+          - task: CopyFiles@2
+            displayName: "Copy sppkg-file to artifact staging directory"
+            inputs:
+              Contents: sharepoint/**/*.sppkg
+              TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish staged artifacts"
+            inputs:
+              ArtifactName: "drop"
+  # The 'Release to QA stage deploys The SPPKG to the Quality Assurance Environment
+  # It will only do so if the Build-stage has completed successfully.
+
+  - stage: "ReleaseToQualityAssurance"
+    displayName: "Release To Quality Assurance"
+    condition: succeeded('Build')
+
+    jobs:
+      - deployment: "ReleaseToAcceptance"
+        displayName: "Release to Acceptance"
+
+        environment: "Quality Assurance environment"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: NodeTool@0
+                  displayName: "Use Node 16.x"
+                  inputs:
+                    versionSpec: 16.x
+                - script: ls
+                    echo $(Pipeline.Workspace)
+                    ls $(Pipeline.Workspace)
