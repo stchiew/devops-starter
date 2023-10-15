@@ -65,8 +65,8 @@ stages:
     condition: succeeded('Build')
 
     jobs:
-      - deployment: "ReleaseToAcceptance"
-        displayName: "Release to Acceptance"
+      - deployment: "ReleaseToQA"
+        displayName: "Release to QA"
 
         environment: "Quality Assurance environment"
 
@@ -74,10 +74,34 @@ stages:
           runOnce:
             deploy:
               steps:
+                # Download the certificate to the agent
+                - task: DownloadSecureFile@1
+                  name: caCertificate
+                  displayName: "Download secure file"
+                  inputs:
+                    secureFile: "DevOpsStarter.pfx"
+
+                # Configure the Node.JS version we want to use
                 - task: NodeTool@0
                   displayName: "Use Node 16.x"
                   inputs:
                     versionSpec: 16.x
-                - script: ls
-                    echo $(Pipeline.Workspace)
-                    ls $(Pipeline.Workspace)
+
+                # Install the CLI for Microsoft 365
+                - task: Npm@1
+                  displayName: "Install CLI for Microsoft 365"
+                  inputs:
+                    command: custom
+                    verbose: false
+                    customCommand: "install -g @pnp/cli-microsoft365"
+
+                - script: ls $(Pipeline.Workspace)/drop/
+
+                - script: m365 login --authType certificate --certificateFile "$(caCertificate.secureFilePath)" --password "$(CertificatePassword)" --appId "$(AppId)" --tenant "$(TenantId)"
+                  displayName: "Login to SPO"
+
+                # Execute a CLI script to deploy the app to SharePoint
+                - script:
+                    m365 spo app add --filePath "$(Pipeline.Workspace)/drop/$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)" --overwrite
+                    m365 spo app deploy --name "$(PackageName)" --appCatalogScope sitecollection --appCatalogUrl "$(SiteCollection)"
+                  displayName: "Deploy SharePoint package"
