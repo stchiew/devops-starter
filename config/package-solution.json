@@ -3,7 +3,7 @@
   "solution": {
     "name": "devops-starter-client-side-solution",
     "id": "6320e387-38c1-49b5-a7c1-a833b4860827",
-    "version": "0.0.2.0",
+    "version": "0.0.3.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
